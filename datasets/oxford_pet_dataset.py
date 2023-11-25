@@ -3,6 +3,8 @@ import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
+from configs.oxford_pet_cfg import ROOT_DIR
+
 
 class OxfordIIITPet(Dataset):
     def __init__(self, cfg, dataset_type: str, transform=None):
@@ -37,14 +39,17 @@ class OxfordIIITPet(Dataset):
             category = int(category) - 1
 
             # TODO: реализуйте сохранение filename, label, category в соответствующие атрибуты класса
-            raise NotImplementedError
+            path = os.path.join(ROOT_DIR, filename)
+            self.paths.append(path)
+            self.labels.append(label)
+            self.categories.append(category)
 
     def __len__(self):
         """
             Функция __len__ возвращает количество элементов в наборе данных.
             TODO: Реализуйте этот метод
         """
-        raise NotImplementedError
+        return len(self.labels)
 
     def __getitem__(self, idx):
         """
@@ -56,4 +61,14 @@ class OxfordIIITPet(Dataset):
         """
         # TODO: Реализуйте считывание изображения через Image.open(path).convert("RGB") и применение self.transforms к
         #  этому изображению, верните словарь с ключами "image", "label", "category"
-        raise NotImplementedError
+
+        image = Image.open(self.paths[idx]).convert("RGB")
+
+        if self.transforms is not None:
+            image = self.transforms(image)
+
+        return {
+            "image": image,
+            "label": self.labels[idx],
+            "category": self.categories[idx]
+        }
