@@ -1,5 +1,6 @@
 import os
 from easydict import EasyDict
+from configs.resnet50_cfg import cfg as resnet_cfg
 from configs.oxford_pet_cfg import cfg as dataset_cfg
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -15,7 +16,7 @@ cfg.optimizer_name = 'Adam'  # ['SGD', 'Adam']
 
 cfg.device = 'cpu'  # ['cpu', 'cuda']
 
-cfg.model_cfg = ...
+cfg.model_cfg = resnet_cfg
 cfg.dataset_cfg = dataset_cfg
 
 cfg.exp_dir = os.path.join(ROOT_DIR, 'train_vgg16')
