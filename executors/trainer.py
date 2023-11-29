@@ -69,6 +69,10 @@ class Trainer:
             :param filename: str - название файла
             TODO: реализовать сохранение модели по пути os.path.join(self.cfg.exp_dir, f"{filename}.pt")
         """
+        if not os.path.exists(self.cfg.exp_dir):
+            os.makedirs(self.cfg.exp_dir)
+
+
         path = os.path.join(self.cfg.exp_dir, f"{filename}.pt")
         torch.save(self.model.state_dict(), path)
 
