@@ -118,13 +118,13 @@ class Trainer:
 
 
         for batch_idx, batch in enumerate(self.train_dataloader):
-            show_batch(batch['image'])
+            show_batch(batch['image'].to(self.device))
             loss, logits = self.make_step(batch, update_model=True)
 
 
             _, predicted_labels = torch.max(logits, 1)
-            accuracy_value = accuracy(predicted_labels, batch['label'])
-            balanced_accuracy_value = balanced_accuracy(predicted_labels, batch['label'], self.cfg.dataset_cfg.nrof_classes)
+            accuracy_value = accuracy(predicted_labels, batch['label'].to(self.device))
+            balanced_accuracy_value = balanced_accuracy(predicted_labels, batch['label'].to(self.device), self.cfg.dataset_cfg.nrof_classes)
             self.neptune_logger.save_param(
                 'train',
                 ['target_function_value', 'accuracy', 'balanced_accuracy', 'learning_rate'],
