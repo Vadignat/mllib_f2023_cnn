@@ -118,7 +118,7 @@ class Trainer:
 
 
         for batch_idx, batch in enumerate(self.train_dataloader):
-            show_batch(batch)
+            show_batch(batch['image'])
             loss, logits = self.make_step(batch, update_model=True)
 
 
