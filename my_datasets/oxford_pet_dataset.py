@@ -33,7 +33,7 @@ class OxfordIIITPet(Dataset):
         with open(os.path.join(self.cfg.path, 'annotations', self.cfg.annotation_filenames[self.dataset_type]), 'r') as f:
             lines = f.read()
         for line in lines.split('\n'):
-            filename, label, category, _ = line.split(' ')
+            filename, label, category, _ = line.split()
 
             filename = f'{filename}.jpg'
             label = int(label) - 1
