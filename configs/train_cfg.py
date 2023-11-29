@@ -12,7 +12,9 @@ cfg.batch_size = 64
 cfg.lr = 1e-3
 
 cfg.model_name = 'VGG16'  # ['VGG16', 'ResNet50']
-cfg.optimizer_name = 'Adam'  # ['SGD', 'Adam']
+cfg.optimizer_name = 'SGD'  # ['SGD', 'Adam']
+cfg.momentum = 0.9
+cfg.weight_decay = 5e-4
 
 cfg.device = 'cpu'  # ['cpu', 'cuda']
 

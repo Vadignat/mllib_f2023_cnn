@@ -61,7 +61,12 @@ class Trainer:
         print(f'number of trainable parameters: {nrof_params}')
 
         # TODO: инициализируйте оптимайзер через getattr(torch.optim, self.cfg.optimizer_name)
-        self.optimizer = getattr(torch.optim, self.cfg.optimizer_name)(self.model.parameters(), lr=self.cfg.lr)
+        self.optimizer = getattr(torch.optim, self.cfg.optimizer_name)(
+            self.model.parameters(),
+            lr=self.cfg.lr,
+            momentum = self.cfg.momentum,
+            weight_decay = self.cfg.weight_decay
+        )
 
     def save_model(self, filename):
         """
