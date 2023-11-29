@@ -26,7 +26,7 @@ class Trainer:
     def __init__(self, cfg):
         set_seed(cfg.seed)
         self.cfg = cfg
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = cfg.device
 
         # TODO: настройте логирование с помощью класса Logger
         #  (пример: https://github.com/KamilyaKharisova/mllib_f2023/blob/master/logginig_example.py)
@@ -93,6 +93,7 @@ class Trainer:
         inputs, labels = batch['image'].to(self.device), batch['label'].to(self.device)
         labels = labels.long()
 
+
         logits = self.model(inputs)
         loss = self.criterion(logits, labels)
 
@@ -113,19 +114,21 @@ class Trainer:
                 залогируйте на каждом шаге значение целевой функции и accuracy на batch
         """
         self.model.train()
-        #total_loss = 0.0
+
 
         for batch_idx, batch in enumerate(self.train_dataloader):
+
             loss, logits = self.make_step(batch, update_model=True)
 
             _, predicted_labels = torch.max(logits, 1)
             accuracy_value = accuracy(predicted_labels, batch['label'])
+            balanced_accuracy_value = balanced_accuracy(predicted_labels, batch['label'], self.cfg.dataset_cfg.nrof_classes)
             self.neptune_logger.save_param(
                 'train',
-                ['target_function_value', 'accuracy'],
-                [loss, accuracy_value]
+                ['target_function_value', 'accuracy', 'balanced_accuracy', 'learning_rate'],
+                [loss, accuracy_value, balanced_accuracy_value, self.optimizer.param_groups[0]['lr']]
             )
-            #total_loss += loss
+
 
 
     def evaluate(self, *args, **kwargs):

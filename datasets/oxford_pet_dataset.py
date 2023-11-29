@@ -4,6 +4,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 from configs.oxford_pet_cfg import ROOT_DIR
+from utils.visualization import show_batch
 
 
 class OxfordIIITPet(Dataset):
@@ -64,8 +65,11 @@ class OxfordIIITPet(Dataset):
 
         image = Image.open(self.paths[idx]).convert("RGB")
 
+        show_batch(image)
+
         if self.transforms is not None:
             image = self.transforms(image)
+            show_batch(image)
 
         return {
             "image": image,

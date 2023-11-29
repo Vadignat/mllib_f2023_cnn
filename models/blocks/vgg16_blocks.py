@@ -24,7 +24,19 @@ def conv_block(in_channels: [], out_channels: [], conv_params=None, maxpool_para
     if maxpool_params is None:
         maxpool_params = dict(kernel_size=2, stride=2, padding=0)
 
-    raise NotImplementedError
+    layers = []
+
+    for i in range(len(in_channels)):
+        conv_layer = nn.Conv2d(in_channels[i], out_channels[i], **conv_params)
+        layers.append(conv_layer)
+
+        layers.append(nn.BatchNorm2d(out_channels[i]))
+        layers.append(nn.ReLU(inplace=True))
+
+    maxpool_layer = nn.MaxPool2d(**maxpool_params)
+    layers.append(maxpool_layer)
+
+    return nn.Sequential(*layers)
 
 
 def classifier_block(in_features: [], out_features: [], linear_params=None):
@@ -47,4 +59,12 @@ def classifier_block(in_features: [], out_features: [], linear_params=None):
     if linear_params is None:
         linear_params = dict(bias=True)
 
-    raise NotImplementedError
+    layers = []
+
+    for i in range(len(in_features)):
+        layers.append(nn.Linear(in_features[i], out_features[i], **linear_params))
+        layers.append(nn.ReLU(inplace=True))
+        layers.append(nn.Dropout(p=0.5, inplace=False))
+
+    return nn.Sequential(*layers)
+
