@@ -33,14 +33,15 @@ class OxfordIIITPet(Dataset):
         with open(os.path.join(self.cfg.path, 'annotations', self.cfg.annotation_filenames[self.dataset_type]), 'r') as f:
             lines = f.read()
         for line in lines.split('\n'):
+            if not line:
+                continue
             filename, label, category, _ = line.split()
 
             filename = f'{filename}.jpg'
             label = int(label) - 1
             category = int(category) - 1
-
             # TODO: реализуйте сохранение filename, label, category в соответствующие атрибуты класса
-            path = os.path.join(ROOT_DIR, filename)
+            path = os.path.join(self.cfg.path, 'images', filename)
             self.paths.append(path)
             self.labels.append(label)
             self.categories.append(category)
@@ -65,11 +66,11 @@ class OxfordIIITPet(Dataset):
 
         image = Image.open(self.paths[idx]).convert("RGB")
 
-        show_batch(image)
+
 
         if self.transforms is not None:
             image = self.transforms(image)
-            show_batch(image)
+
 
         return {
             "image": image,

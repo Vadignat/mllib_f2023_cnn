@@ -27,7 +27,6 @@ class VGG16(nn.Module):
         #  nn.Linear(in_features=4096, out_features=nrof_classes)
         self.classifier = nn.Linear(in_features=4096, out_features=nrof_classes)
 
-        raise NotImplementedError
 
     def forward(self, inputs):
         """

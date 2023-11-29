@@ -53,7 +53,8 @@ class Trainer:
 
     def __prepare_model(self, model_cfg, nrof_classes):
         """ Подготовка нейронной сети"""
-        self.model = getattr(globals(), model_cfg.model_name)(model_cfg, nrof_classes).to(self.device)
+        model_class = globals().get(self.cfg.model_name)
+        self.model = model_class(model_cfg, nrof_classes).to(self.device)
         self.criterion = nn.CrossEntropyLoss()
 
         nrof_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
@@ -117,8 +118,9 @@ class Trainer:
 
 
         for batch_idx, batch in enumerate(self.train_dataloader):
-
+            show_batch(batch)
             loss, logits = self.make_step(batch, update_model=True)
+
 
             _, predicted_labels = torch.max(logits, 1)
             accuracy_value = accuracy(predicted_labels, batch['label'])
@@ -147,6 +149,7 @@ class Trainer:
 
         with torch.no_grad():
             for batch_idx, batch in enumerate(self.test_dataloader):
+
                 loss, logits = self.make_step(batch, update_model=False)
 
                 _, predicted_labels = torch.max(logits.float(), 1)
@@ -168,7 +171,7 @@ class Trainer:
 
         return accuracy_value
 
-    def fit(self, num_epochs : int):
+    def fit(self, num_epochs : int = 10):
         """
             Основной цикл обучения модели. Данная функция должна содержать один цикл на заданное количество эпох.
             На каждой эпохе сначала происходит обучение модели на обучающих данных с помощью метода self.train_epoch(),
