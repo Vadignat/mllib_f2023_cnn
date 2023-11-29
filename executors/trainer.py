@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from datasets.utils.prepare_transforms import prepare_transforms
+from .datasets.utils.prepare_transforms import prepare_transforms
 from datasets.oxford_pet_dataset import OxfordIIITPet
 from logs.Logger import Logger
 from models.vgg16 import VGG16
