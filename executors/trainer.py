@@ -190,7 +190,7 @@ class Trainer:
                 тестовой выборке
         """
         best_accuracy = 0.0
-        best_epoch = 0
+
 
         for epoch in range(num_epochs):
             print(f"\nEpoch {epoch + 1}/{num_epochs}:")
@@ -203,8 +203,7 @@ class Trainer:
 
             if accuracy > best_accuracy:
                 best_accuracy = accuracy
-                best_epoch = epoch + 1
-                self.save_model(f"best_model_epoch_{best_epoch}")
+                self.save_model("best_model")
 
     def overfitting_on_batch(self, max_step=100):
         """
