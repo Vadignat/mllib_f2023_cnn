@@ -16,8 +16,8 @@ class ResNet50(nn.Module):
         #self.stages =
         self.stage1 = Stage(64, 64, self.cfg.nrof_blocks[0])
         self.stage2 = Stage(256, 128, self.cfg.nrof_blocks[1])
-        self.stage3 = Stage(512, 64, self.cfg.nrof_blocks[2])
-        self.stage4 = Stage(512, 512, self.cfg.nrof_blocks[3], stride=2)
+        self.stage3 = Stage(512, 256, self.cfg.nrof_blocks[2])
+        self.stage4 = Stage(1024, 512, self.cfg.nrof_blocks[3], stride=2)
 
         self.avg_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
 
