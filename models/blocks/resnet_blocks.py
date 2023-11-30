@@ -11,12 +11,18 @@ class InputStem(nn.Module):
             TODO: инициализируйте слои входного блока
         """
         super().__init__()
-        raise NotImplementedError
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3)
+        self.bn1 = nn.BatchNorm2d(64)
+        self.relu = nn.ReLU(inplace=True)
+        self.maxpool1 = nn.MaxPool2d(3, 2, padding=1)
 
     def forward(self, inputs):
         # TODO: реализуйте forward pass
-        raise NotImplementedError
-
+        inputs = self.conv1(inputs)
+        inputs = self.bn1(inputs)
+        inputs = self.relu(inputs)
+        inputs = self.maxpool1(inputs)
+        return inputs
 
 class Bottleneck(nn.Module):
     def __init__(self, in_channels, out_channels, expansion=4, stride=1, down_sampling=False):
@@ -45,15 +51,41 @@ class Bottleneck(nn.Module):
             TODO: инициализируйте слои Bottleneck
         """
         super().__init__()
-        raise NotImplementedError
+        self.path_a = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=1, padding=1, stride=stride),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels * expansion, kernel_size=1),
+            nn.BatchNorm2d(out_channels*expansion)
+        )
+
+        if down_sampling:
+            self.path_b = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels * expansion, kernel_size=1, stride=stride),
+                nn.BatchNorm2d(out_channels * expansion)
+            )
+        else:
+            self.path_b = nn.Identity()
+
+        self.relu = nn.ReLU(inplace=True)
+
 
     def forward(self, inputs):
         # TODO: реализуйте forward pass
-        raise NotImplementedError
+        residual = inputs
+
+        inputs = self.path_a(inputs)
+        inputs = inputs + self.path_b(residual)
+        inputs = self.relu(inputs)
+
+        return inputs
 
 
 class Stage(nn.Module):
-    def __init__(self, nrof_blocks: int):
+    def __init__(self, in_channels: int, out_channels: int, nrof_blocks: int, expansion : int = 4, stride: int = 1):
         """
             Последовательность Bottleneck блоков, первый блок Down sampling, остальные - Residual
 
@@ -61,8 +93,28 @@ class Stage(nn.Module):
             TODO: инициализируйте слои, используя класс Bottleneck
         """
         super().__init__()
-        raise NotImplementedError
+
+
+        self.first_block = Bottleneck(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            stride=stride,
+            down_sampling=True
+        )
+
+        self.blocks = nn.ModuleList([
+            Bottleneck(
+                in_channels=out_channels * expansion,
+                out_channels=out_channels
+            ) for _ in range(1, nrof_blocks)
+        ])
+
 
     def forward(self, inputs):
         # TODO: реализуйте forward pass
-        raise NotImplementedError
+        inputs = self.first_block(inputs)
+
+        for block in self.blocks:
+            inputs = block(inputs)
+
+        return inputs

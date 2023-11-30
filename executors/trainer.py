@@ -34,7 +34,7 @@ class Trainer:
         # TODO: залогируйте используемые гиперпараметры в neptune.ai через метод log_hyperparameters
         self.neptune_logger = Logger(cfg.env_path, cfg.project_name)
         self.neptune_logger.log_hyperparameters(params={
-        'learning_rate': cfg.lr,
+        'learning_rate': cfg.optimizer_params['lr'],
         'batch_size': cfg.batch_size,
         'optimizer': cfg.optimizer_name
     })
@@ -63,9 +63,7 @@ class Trainer:
         # TODO: инициализируйте оптимайзер через getattr(torch.optim, self.cfg.optimizer_name)
         self.optimizer = getattr(torch.optim, self.cfg.optimizer_name)(
             self.model.parameters(),
-            lr=self.cfg.lr,
-            momentum = self.cfg.momentum,
-            weight_decay = self.cfg.weight_decay
+            **self.cfg.optimizer_params
         )
 
     def save_model(self, filename):

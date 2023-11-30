@@ -12,16 +12,19 @@ class ResNet50(nn.Module):
         self.nrof_classes = nrof_classes
 
         # TODO: инициализируйте слои модели, используя классы InputStem, Stage
-        self.input_block = ...
-        self.stages = ...
+        self.input_block = InputStem()
+        #self.stages =
+        self.stage1 = Stage(64, 64, self.cfg.nrof_blocks[0])
+        self.stage2 = Stage(256, 128, self.cfg.nrof_blocks[1])
+        self.stage3 = Stage(512, 64, self.cfg.nrof_blocks[2])
+        self.stage4 = Stage(512, 512, self.cfg.nrof_blocks[3], stride=2)
 
         self.avg_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
 
         # TODO: инициализируйте выходной слой модели
-        self.linear = ...
+        self.linear = nn.Linear(2048, self.nrof_classes)
 
         self.apply(self._init_weights)
-        raise NotImplementedError
 
     def _init_weights(self, m):
         """
@@ -31,7 +34,13 @@ class ResNet50(nn.Module):
 
             # TODO: реализуйте этот метод
         """
-        raise NotImplementedError
+        if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+            nn.init.xavier_uniform_(m.weight)
+            if m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+        elif isinstance(m, nn.BatchNorm2d):
+            nn.init.constant_(m.weight, 1)
+            nn.init.constant_(m.bias, 0)
 
     def weight_decay_params(self):
         """
@@ -42,7 +51,12 @@ class ResNet50(nn.Module):
             # TODO: реализуйте этот метод
         """
         wo_decay, w_decay = [], []
-        raise NotImplementedError
+        for name, param in self.named_parameters():
+            if 'weight' in name and 'BatchNorm' not in name:
+                w_decay.append(param)
+            else:
+                wo_decay.append(param)
+        return wo_decay, w_decay
 
     def forward(self, inputs):
         """
@@ -52,4 +66,13 @@ class ResNet50(nn.Module):
 
            TODO: реализуйте forward pass
        """
-        raise NotImplementedError
+        inputs = self.input_block(inputs)
+        inputs = self.stage1(inputs)
+        inputs = self.stage2(inputs)
+        inputs = self.stage3(inputs)
+        inputs = self.stage4(inputs)
+        inputs = self.avg_pool(inputs)
+        inputs = inputs.view(inputs.size(0), -1)
+        inputs = self.linear(inputs)
+
+        return inputs
