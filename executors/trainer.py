@@ -111,6 +111,7 @@ class Trainer:
             loss.backward()
             self.optimizer.step()
 
+        gc.collect()
         torch.cuda.empty_cache()
 
         return loss.item(), logits
@@ -127,13 +128,16 @@ class Trainer:
         self.model.train()
 
         for batch_idx, batch in enumerate(self.train_dataloader):
-            show_batch(batch['image'].to(self.device))
+            batch['label'] = batch['label'].to(self.device)
+            batch['image'] = batch['image'].to(self.device)
+
+            show_batch(batch['image'])
 
             loss, logits = self.make_step(batch, update_model=True)
 
             _, predicted_labels = torch.max(logits, 1)
-            accuracy_value = accuracy(predicted_labels, batch['label'].to(self.device))
-            balanced_accuracy_value = balanced_accuracy(predicted_labels, batch['label'].to(self.device), self.cfg.dataset_cfg.nrof_classes)
+            accuracy_value = accuracy(predicted_labels, batch['label'])
+            balanced_accuracy_value = balanced_accuracy(predicted_labels, batch['label'], self.cfg.dataset_cfg.nrof_classes)
             self.neptune_logger.save_param(
                 'train',
                 ['target_function_value', 'accuracy', 'balanced_accuracy', 'learning_rate'],
@@ -163,8 +167,7 @@ class Trainer:
 
         with torch.no_grad():
             for batch_idx, batch in enumerate(self.test_dataloader):
-                with torch.no_grad():
-                    loss, logits = self.make_step(batch, update_model=False)
+                loss, logits = self.make_step(batch, update_model=False)
 
                 _, predicted_labels = torch.max(logits.float(), 1)
                 total_loss += loss
