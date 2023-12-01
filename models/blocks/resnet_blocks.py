@@ -13,7 +13,7 @@ class InputStem(nn.Module):
         super().__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3)
         self.bn1 = nn.BatchNorm2d(64)
-        self.relu = nn.ReLU()
+        self.relu = nn.ReLU(inplace=True)
         self.maxpool1 = nn.MaxPool2d(3, 2, padding=1)
 
     def forward(self, inputs):
@@ -54,10 +54,10 @@ class Bottleneck(nn.Module):
         self.path_a = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, padding=1, kernel_size=3),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels * expansion, kernel_size=1),
             nn.BatchNorm2d(out_channels*expansion)
         )
@@ -70,7 +70,7 @@ class Bottleneck(nn.Module):
         else:
             self.path_b = nn.Identity()
 
-        self.relu = nn.ReLU()
+        self.relu = nn.ReLU(inplace=True)
 
 
     def forward(self, inputs):
@@ -78,7 +78,7 @@ class Bottleneck(nn.Module):
         residual = inputs
 
         inputs = self.path_a(inputs)
-        inputs = inputs + self.path_b(residual)
+        inputs = torch.add(inputs, self.path_b(residual))
         inputs = self.relu(inputs)
 
         return inputs
