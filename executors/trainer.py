@@ -6,7 +6,7 @@
 #  5. Сохранение и загрузка весов модели
 #  6. Добавить возможность обучать на gpu
 #  За основу данного класса можно взять https://github.com/pkhanzhina/mllib_f2023_mlp/blob/master/executors/mlp_trainer.py
-
+import gc
 import os
 import torch
 import torch.nn as nn
@@ -98,6 +98,7 @@ class Trainer:
             :return: значение функции потерь, выход модели
             # TODO: реализуйте инференс модели для данных batch, посчитайте значение целевой функции
         """
+
         inputs, labels = batch['image'].to(self.device), batch['label'].to(self.device)
         labels = labels.long()
 
@@ -126,8 +127,8 @@ class Trainer:
 
         for batch_idx, batch in enumerate(self.train_dataloader):
             show_batch(batch['image'].to(self.device))
-            loss, logits = self.make_step(batch, update_model=True)
 
+            loss, logits = self.make_step(batch, update_model=True)
 
             _, predicted_labels = torch.max(logits, 1)
             accuracy_value = accuracy(predicted_labels, batch['label'].to(self.device))
@@ -137,6 +138,11 @@ class Trainer:
                 ['target_function_value', 'accuracy', 'balanced_accuracy', 'learning_rate'],
                 [loss, accuracy_value, balanced_accuracy_value, self.optimizer.param_groups[0]['lr']]
             )
+
+            del batch
+            del logits
+            gc.collect()
+            torch.cuda.empty_cache()
 
 
 
@@ -156,8 +162,8 @@ class Trainer:
 
         with torch.no_grad():
             for batch_idx, batch in enumerate(self.test_dataloader):
-
-                loss, logits = self.make_step(batch, update_model=False)
+                with torch.no_grad:
+                    loss, logits = self.make_step(batch, update_model=False)
 
                 _, predicted_labels = torch.max(logits.float(), 1)
                 total_loss += loss
