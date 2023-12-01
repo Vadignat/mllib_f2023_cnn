@@ -202,6 +202,9 @@ class Trainer:
 
             self.train_epoch()
 
+            gc.collect()
+            torch.cuda.empty_cache()
+
             accuracy = self.evaluate()
 
             print('[{:d}]: accuracy {:.4f}'.format(epoch, accuracy))
