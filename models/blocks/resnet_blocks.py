@@ -13,7 +13,7 @@ class InputStem(nn.Module):
         super().__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3)
         self.bn1 = nn.BatchNorm2d(64)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU()
         self.maxpool1 = nn.MaxPool2d(3, 2, padding=1)
 
     def forward(self, inputs):
@@ -70,7 +70,7 @@ class Bottleneck(nn.Module):
         else:
             self.path_b = nn.Identity()
 
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU()
 
 
     def forward(self, inputs):

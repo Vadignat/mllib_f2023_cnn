@@ -163,7 +163,8 @@ class Trainer:
 
         with torch.no_grad():
             for batch_idx, batch in enumerate(self.test_dataloader):
-                loss, logits = self.make_step(batch, update_model=False)
+                with torch.no_grad():
+                    loss, logits = self.make_step(batch, update_model=False)
 
                 _, predicted_labels = torch.max(logits.float(), 1)
                 total_loss += loss
