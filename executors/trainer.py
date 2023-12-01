@@ -99,7 +99,7 @@ class Trainer:
             # TODO: реализуйте инференс модели для данных batch, посчитайте значение целевой функции
         """
 
-        inputs, labels = batch['image'].to(self.device), batch['label'].to(self.device)
+        inputs, labels = batch['image'], batch['label']
         labels = labels.long()
 
 
