@@ -111,6 +111,8 @@ class Trainer:
             loss.backward()
             self.optimizer.step()
 
+        torch.cuda.empty_cache()
+
         return loss.item(), logits
 
 
@@ -123,7 +125,6 @@ class Trainer:
                 залогируйте на каждом шаге значение целевой функции и accuracy на batch
         """
         self.model.train()
-
 
         for batch_idx, batch in enumerate(self.train_dataloader):
             show_batch(batch['image'].to(self.device))
@@ -162,8 +163,7 @@ class Trainer:
 
         with torch.no_grad():
             for batch_idx, batch in enumerate(self.test_dataloader):
-                with torch.no_grad:
-                    loss, logits = self.make_step(batch, update_model=False)
+                loss, logits = self.make_step(batch, update_model=False)
 
                 _, predicted_labels = torch.max(logits.float(), 1)
                 total_loss += loss
